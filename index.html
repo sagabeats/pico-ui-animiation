@@ -59,6 +59,20 @@
       font-size: 14px;
       font-weight: 350;
       white-space: nowrap;
+      animation: textPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes textPulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        text-shadow: 0 0 0px transparent;
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.01);
+        text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
+      2
     }
 
     .ldripple {
