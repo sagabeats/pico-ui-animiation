@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Code Zoom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d1530 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            perspective: 1000px;
+        }
+
+        .container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            transform-style: preserve-3d;
+        }
+
+        .code-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            animation: zoomIn 8s linear infinite;
+            opacity: 0;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        }
+
+        @keyframes zoomIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.1) translateZ(-500px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3) translateZ(200px);
+                opacity: 0;
+            }
+        }
+
+        .code-layer span {
+            display: inline;
+        }
+
+        .keyword { color: #ff79c6; }
+        .function { color: #50fa7b; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; }
+        .variable { color: #8be9fd; }
+        .number { color: #bd93f9; }
+        .operator { color: #ff5555; }
+        .type { color: #ffb86c; }
+        .bracket { color: #f8f8f2; }
+
+        .typing-cursor {
+            animation: blink 0.7s infinite;
+            color: #fff;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 15s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateZ(-1000px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateZ(500px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .glow-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(10, 14, 39, 0.8) 100%);
+            pointer-events: none;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container"></div>
+    <div class="glow-overlay"></div>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
+
+    <script>
+        const codeSnippets = [
+            `<span class="keyword">const</span> <span class="variable">app</span> <span class="operator">=</span> <span class="function">express</span><span class="bracket">()</span>;`,
+            `<span class="keyword">function</span> <span class="function">initialize</span><span class="bracket">()</span> <span class="bracket">{</span>`,
+            `<span class="keyword">import</span> <span class="bracket">{</span> <span class="variable">useState</span> <span class="bracket">}</span> <span class="keyword">from</span> <span class="string">'react'</span>;`,
+            `<span class="keyword">class</span> <span class="type">DataProcessor</span> <span class="keyword">extends</span> <span class="type">Base</span> <span class="bracket">{</span>`,
+            `<span class="variable">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="string">"Initializing..."</span><span class="bracket">)</span>;`,
+            `<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchData</span><span class="bracket">(</span><span class="variable">url</span><span class="bracket">)</span> <span class="bracket">{</span>`,
+            `<span class="keyword">return</span> <span class="keyword">await</span> <span class="variable">response</span>.<span class="function">json</span><span class="bracket">()</span>;`,
+            `<span class="keyword">if</span> <span class="bracket">(</span><span class="variable">isValid</span> <span class="operator">&&</span> <span class="variable">isActive</span><span class="bracket">)</span> <span class="bracket">{</span>`,
+            `<span class="keyword">const</span> <span class="variable">result</span> <span class="operator">=</span> <span class="variable">data</span>.<span class="function">filter</span><span class="bracket">(</span><span class="variable">x</span> <span class="operator">=></span> <span class="variable">x</span>.<span class="variable">id</span><span class="bracket">)</span>;`,
+            `<span class="comment">// Process the incoming data stream</span>`,
+            `<span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">Component</span>;`,
+            `<span class="keyword">try</span> <span class="bracket">{</span> <span class="function">execute</span><span class="bracket">()</span>; <span class="bracket">}</span> <span class="keyword">catch</span> <span class="bracket">(</span><span class="variable">e</span><span class="bracket">)</span> <span class="bracket">{</span>`,
+            `<span class="keyword">let</span> <span class="variable">counter</span> <span class="operator">=</span> <span class="number">0</span>;`,
+            `<span class="variable">this</span>.<span class="function">setState</span><span class="bracket">({</span> <span class="variable">loading</span>: <span class="keyword">true</span> <span class="bracket">})</span>;`,
+            `<span class="keyword">for</span> <span class="bracket">(</span><span class="keyword">let</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; <span class="variable">i</span> <span class="operator"><</span> <span class="variable">len</span>; <span class="variable">i</span><span class="operator">++</span><span class="bracket">)</span> <span class="bracket">{</span>`,
+            `<span class="keyword">const</span> <span class="bracket">[</span><span class="variable">state</span>, <span class="variable">setState</span><span class="bracket">]</span> <span class="operator">=</span> <span class="function">useState</span><span class="bracket">(</span><span class="keyword">null</span><span class="bracket">)</span>;`,
+            `<span class="variable">document</span>.<span class="function">querySelector</span><span class="bracket">(</span><span class="string">'.app'</span><span class="bracket">)</span>;`,
+            `<span class="keyword">while</span> <span class="bracket">(</span><span class="variable">running</span><span class="bracket">)</span> <span class="bracket">{</span> <span class="function">tick</span><span class="bracket">()</span>; <span class="bracket">}</span>`,
+            `<span class="comment">/* Initialize the main controller */</span>`,
+            `<span class="variable">Promise</span>.<span class="function">all</span><span class="bracket">(</span><span class="variable">requests</span><span class="bracket">)</span>.<span class="function">then</span><span class="bracket">(</span><span class="variable">handle</span><span class="bracket">)</span>;`,
+            `<span class="keyword">interface</span> <span class="type">UserData</span> <span class="bracket">{</span> <span class="variable">id</span>: <span class="type">string</span>; <span class="bracket">}</span>`,
+            `<span class="variable">socket</span>.<span class="function">on</span><span class="bracket">(</span><span class="string">'connect'</span>, <span class="function">handler</span><span class="bracket">)</span>;`,
+            `<span class="keyword">def</span> <span class="function">process_data</span><span class="bracket">(</span><span class="variable">self</span>, <span class="variable">input</span><span class="bracket">)</span>:`,
+            `<span class="variable">model</span> <span class="operator">=</span> <span class="function">Sequential</span><span class="bracket">([</span><span class="function">Dense</span><span class="bracket">(</span><span class="number">128</span><span class="bracket">)])</span>`,
+            `<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="variable">users</span> <span class="keyword">WHERE</span> <span class="variable">active</span>;`,
+            `<span class="variable">std</span>::<span class="variable">cout</span> <span class="operator"><<</span> <span class="variable">result</span> <span class="operator"><<</span> <span class="variable">std</span>::<span class="variable">endl</span>;`,
+            `<span class="keyword">#include</span> <span class="string"><iostream></span>`,
+            `<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="variable">std</span>;`,
+            `<span class="keyword">public</span> <span class="keyword">static</span> <span class="type">void</span> <span class="function">main</span><span class="bracket">(</span><span class="type">String</span><span class="bracket">[]</span> <span class="variable">args</span><span class="bracket">)</span>`,
+            `<span class="variable">System</span>.<span class="variable">out</span>.<span class="function">println</span><span class="bracket">(</span><span class="string">"Hello World"</span><span class="bracket">)</span>;`,
+        ];
+
+        const container = document.getElementById('container');
+        let layerIndex = 0;
+
+        function getRandomPosition() {
+            const offsetX = (Math.random() - 0.5) * 60;
+            const offsetY = (Math.random() - 0.5) * 60;
+            return { x: offsetX, y: offsetY };
+        }
+
+        function createCodeLayer() {
+            const layer = document.createElement('div');
+            layer.className = 'code-layer';
+            
+            const snippet = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+            const pos = getRandomPosition();
+            
+            layer.innerHTML = snippet + `<span class="typing-cursor">|</span>`;
+            layer.style.fontSize = `${14 + Math.random() * 10}px`;
+            layer.style.left = `calc(50% + ${pos.x}vw)`;
+            layer.style.top = `calc(50% + ${pos.y}vh)`;
+            layer.style.animationDelay = '0s';
+            layer.style.animationDuration = `${6 + Math.random() * 4}s`;
+            
+            container.appendChild(layer);
+            
+            setTimeout(() => {
+                layer.remove();
+            }, 12000);
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particle.style.animationDuration = `${10 + Math.random() * 10}s`;
+            
+            const colors = ['#ff79c6', '#50fa7b', '#f1fa8c', '#8be9fd', '#bd93f9', '#ffb86c'];
+            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.boxShadow = `0 0 ${5 + Math.random() * 10}px ${particle.style.background}`;
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 20000);
+        }
+
+        // Initial batch
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => createCodeLayer(), i * 400);
+        }
+
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => createParticle(), i * 100);
+        }
+
+        // Continuous generation
+        setInterval(createCodeLayer, 600);
+        setInterval(createParticle, 300);
+    </script>
+</body>
+</html>
