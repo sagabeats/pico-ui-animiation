@@ -4,35 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loader</title>
-
-  <!-- ADDED (needed): reduce UA / iframe color-scheme side effects -->
-  <meta name="color-scheme" content="light dark" />
-
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
-    :root {
-      /* ADDED (needed): prevent UA forcing light canvas in embedded contexts */
-      color-scheme: normal;
-    }
     
     html, body {
       height: 100%;
       width: 100%;
-
-      /* CHANGED (needed): make transparency win over any default painting */
-      background-color: transparent !important;
-      background: transparent !important;
-      margin: 0;
-    }
-
-    body {
-      background-color: transparent !important;
-      background: transparent !important;
+      background-color: #0a0a0a;
     }
     
     .main-container {
@@ -87,9 +69,15 @@
     }
     
     @keyframes pulse {
-      0% { fill: #2d2d2d; }
-      50% { fill: #505050; }
-      100% { fill: #2d2d2d; }
+      0% {
+        fill: #2d2d2d;
+      }
+      50% {
+        fill: #505050;
+      }
+      100% {
+        fill: #2d2d2d;
+      }
     }
     
     .trace-flow {
@@ -104,26 +92,56 @@
       color: #00ccff;
     }
     
-    .trace-flow:nth-child(1) { stroke: url(#traceGradient1); }
-    .trace-flow:nth-child(2) { stroke: url(#traceGradient2); }
-    .trace-flow:nth-child(3) { stroke: url(#traceGradient3); }
-    .trace-flow:nth-child(4) { stroke: url(#traceGradient4); }
+    .trace-flow:nth-child(1) {
+      stroke: url(#traceGradient1);
+    }
+    
+    .trace-flow:nth-child(2) {
+      stroke: url(#traceGradient2);
+    }
+    
+    .trace-flow:nth-child(3) {
+      stroke: url(#traceGradient3);
+    }
+    
+    .trace-flow:nth-child(4) {
+      stroke: url(#traceGradient4);
+    }
     
     @keyframes flow {
-      from { stroke-dashoffset: 720; }
-      to { stroke-dashoffset: 0; }
+      from {
+        stroke-dashoffset: 720;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
     }
 
     @keyframes blink {
-      0% { opacity: 0.95; filter: drop-shadow(0 0 12px currentColor); }
-      50% { opacity: 0.5; filter: drop-shadow(0 0 6px currentColor); }
-      100% { opacity: 0.95; filter: drop-shadow(0 0 12px currentColor); }
+      0% {
+        opacity: 0.95;
+        filter: drop-shadow(0 0 12px currentColor);
+      }
+      50% {
+        opacity: 0.5;
+        filter: drop-shadow(0 0 6px currentColor);
+      }
+      100% {
+        opacity: 0.95;
+        filter: drop-shadow(0 0 12px currentColor);
+      }
     }
 
     @keyframes textBlink {
-      0% { opacity: 0.4; }
-      50% { opacity: 1; }
-      100% { opacity: 0.4; }
+      0% {
+        opacity: 0.4;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.4;
+      }
     }
   </style>
 </head>
@@ -136,22 +154,50 @@
         preserveAspectRatio="none"
       >
         <defs>
-          <linearGradient id="traceGradient1" x1="250" y1="120" x2="100" y2="200" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="traceGradient1"
+            x1="175"
+            y1="120"
+            x2="25"
+            y2="200"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
             <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
           </linearGradient>
 
-          <linearGradient id="traceGradient2" x1="650" y1="120" x2="800" y2="300" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="traceGradient2"
+            x1="725"
+            y1="120"
+            x2="875"
+            y2="300"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
             <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
           </linearGradient>
 
-          <linearGradient id="traceGradient3" x1="250" y1="380" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="traceGradient3"
+            x1="175"
+            y1="380"
+            x2="325"
+            y2="400"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
             <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
           </linearGradient>
 
-          <linearGradient id="traceGradient4" x1="650" y1="120" x2="500" y2="100" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="traceGradient4"
+            x1="725"
+            y1="120"
+            x2="575"
+            y2="100"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
             <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
           </linearGradient>
@@ -191,23 +237,42 @@
         </g>
 
         <g id="browser" transform="translate(0, 200)">
-          <rect x="250" y="120" width="400" height="260" rx="8" ry="8" class="browser-frame"></rect>
-          <rect x="250" y="120" width="400" height="30" rx="8" ry="8" class="browser-top"></rect>
+          <rect
+            x="175"
+            y="120"
+            width="550"
+            height="260"
+            rx="8"
+            ry="8"
+            class="browser-frame"
+          ></rect>
 
-          <text x="294" y="141" text-anchor="middle" class="loading-text">Loading...</text>
+          <rect
+            x="175"
+            y="120"
+            width="550"
+            height="30"
+            rx="8"
+            ry="8"
+            class="browser-top"
+          ></rect>
 
-          <rect x="270" y="160" width="360" height="20" class="skeleton"></rect>
-          <rect x="270" y="190" width="200" height="15" class="skeleton"></rect>
-          <rect x="270" y="215" width="300" height="15" class="skeleton"></rect>
-          <rect x="270" y="240" width="360" height="90" class="skeleton"></rect>
-          <rect x="270" y="340" width="180" height="20" class="skeleton"></rect>
+          <text x="219" y="141" text-anchor="middle" class="loading-text">
+            Loading...
+          </text>
+
+          <rect x="195" y="160" width="510" height="20" class="skeleton"></rect>
+          <rect x="195" y="190" width="280" height="15" class="skeleton"></rect>
+          <rect x="195" y="215" width="400" height="15" class="skeleton"></rect>
+          <rect x="195" y="240" width="510" height="90" class="skeleton"></rect>
+          <rect x="195" y="340" width="250" height="20" class="skeleton"></rect>
         </g>
 
         <g id="traces" transform="translate(0, 200)">
-          <path d="M100 300 H250 V128 Q250 120 258 120" class="trace-flow"></path>
-          <path d="M800 200 H650 V372 Q650 380 642 380" class="trace-flow"></path>
-          <path d="M400 520 V380 H258 Q250 380 250 372" class="trace-flow"></path>
-          <path d="M500 50 V120 H642 Q650 120 650 128" class="trace-flow"></path>
+          <path d="M25 300 H175 V128 Q175 120 183 120" class="trace-flow"></path>
+          <path d="M875 200 H725 V372 Q725 380 717 380" class="trace-flow"></path>
+          <path d="M400 520 V380 H183 Q175 380 175 372" class="trace-flow"></path>
+          <path d="M500 50 V120 H717 Q725 120 725 128" class="trace-flow"></path>
         </g>
       </svg>
     </div>
