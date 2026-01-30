@@ -4,17 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loader</title>
+
+  <!-- ADDED (needed): reduce UA / iframe color-scheme side effects -->
+  <meta name="color-scheme" content="light dark" />
+
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
+    :root {
+      /* ADDED (needed): prevent UA forcing light canvas in embedded contexts */
+      color-scheme: normal;
+    }
     
     html, body {
       height: 100%;
       width: 100%;
-      background-color: #0a0a0a;
+
+      /* CHANGED (needed): make transparency win over any default painting */
+      background-color: transparent !important;
+      background: transparent !important;
+      margin: 0;
+    }
+
+    body {
+      background-color: transparent !important;
+      background: transparent !important;
     }
     
     .main-container {
@@ -69,15 +87,9 @@
     }
     
     @keyframes pulse {
-      0% {
-        fill: #2d2d2d;
-      }
-      50% {
-        fill: #505050;
-      }
-      100% {
-        fill: #2d2d2d;
-      }
+      0% { fill: #2d2d2d; }
+      50% { fill: #505050; }
+      100% { fill: #2d2d2d; }
     }
     
     .trace-flow {
@@ -92,56 +104,26 @@
       color: #00ccff;
     }
     
-    .trace-flow:nth-child(1) {
-      stroke: url(#traceGradient1);
-    }
-    
-    .trace-flow:nth-child(2) {
-      stroke: url(#traceGradient2);
-    }
-    
-    .trace-flow:nth-child(3) {
-      stroke: url(#traceGradient3);
-    }
-    
-    .trace-flow:nth-child(4) {
-      stroke: url(#traceGradient4);
-    }
+    .trace-flow:nth-child(1) { stroke: url(#traceGradient1); }
+    .trace-flow:nth-child(2) { stroke: url(#traceGradient2); }
+    .trace-flow:nth-child(3) { stroke: url(#traceGradient3); }
+    .trace-flow:nth-child(4) { stroke: url(#traceGradient4); }
     
     @keyframes flow {
-      from {
-        stroke-dashoffset: 720;
-      }
-      to {
-        stroke-dashoffset: 0;
-      }
+      from { stroke-dashoffset: 720; }
+      to { stroke-dashoffset: 0; }
     }
 
     @keyframes blink {
-      0% {
-        opacity: 0.95;
-        filter: drop-shadow(0 0 12px currentColor);
-      }
-      50% {
-        opacity: 0.5;
-        filter: drop-shadow(0 0 6px currentColor);
-      }
-      100% {
-        opacity: 0.95;
-        filter: drop-shadow(0 0 12px currentColor);
-      }
+      0% { opacity: 0.95; filter: drop-shadow(0 0 12px currentColor); }
+      50% { opacity: 0.5; filter: drop-shadow(0 0 6px currentColor); }
+      100% { opacity: 0.95; filter: drop-shadow(0 0 12px currentColor); }
     }
 
     @keyframes textBlink {
-      0% {
-        opacity: 0.4;
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0.4;
-      }
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
     }
   </style>
 </head>
