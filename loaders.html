@@ -1,254 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Code Zoom</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loader</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: transparent; /* CHANGED: was #0a0a0a */
+    }
 
-        body {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d1530 100%);
-            min-height: 100vh;
-            overflow: hidden;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            perspective: 1000px;
-        }
+    body {
+      background: transparent; /* ADDED: force transparent in embeds */
+    }
+    
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    
+    .loader {
+      width: 100%;
+      height: 100%;
+    }
+    
+    #browser {
+      overflow: hidden;
+    }
+    
+    .grid-line {
+      stroke: #222;
+      stroke-width: 0.5;
+    }
+    
+    .browser-frame {
+      fill: #111;
+      stroke: #424242;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.9));
+    }
+    
+    .browser-top {
+      fill: #1a1a1a;
+    }
+    
+    .loading-text {
+      font-family: system-ui, "Segoe UI", Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 350;
+      fill: #b1b1b1;
+      animation: textBlink 2.5s ease-in-out infinite;
+    }
+    
+    .skeleton {
+      fill: #2d2d2d;
+      rx: 4;
+      ry: 4;
+      animation: pulse 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.02));
+    }
+    
+    @keyframes pulse {
+      0% { fill: #2d2d2d; }
+      50% { fill: #505050; }
+      100% { fill: #2d2d2d; }
+    }
+    
+    .trace-flow {
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 300 420;
+      stroke-dashoffset: 720;
+      animation: flow 5s linear infinite, blink 2.5s ease-in-out infinite;
+      opacity: 0.95;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 12px currentColor);
+      color: #00ccff;
+    }
+    
+    .trace-flow:nth-child(1) { stroke: url(#traceGradient1); }
+    .trace-flow:nth-child(2) { stroke: url(#traceGradient2); }
+    .trace-flow:nth-child(3) { stroke: url(#traceGradient3); }
+    .trace-flow:nth-child(4) { stroke: url(#traceGradient4); }
+    
+    @keyframes flow {
+      from { stroke-dashoffset: 720; }
+      to { stroke-dashoffset: 0; }
+    }
 
-        .container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100vw;
-            height: 100vh;
-            transform-style: preserve-3d;
-        }
+    @keyframes blink {
+      0% { opacity: 0.95; filter: drop-shadow(0 0 12px currentColor); }
+      50% { opacity: 0.5; filter: drop-shadow(0 0 6px currentColor); }
+      100% { opacity: 0.95; filter: drop-shadow(0 0 12px currentColor); }
+    }
 
-        .code-layer {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            white-space: nowrap;
-            animation: zoomIn 8s linear infinite;
-            opacity: 0;
-            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-        }
-
-        @keyframes zoomIn {
-            0% {
-                transform: translate(-50%, -50%) scale(0.1) translateZ(-500px);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 0.3;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(3) translateZ(200px);
-                opacity: 0;
-            }
-        }
-
-        .code-layer span {
-            display: inline;
-        }
-
-        .keyword { color: #ff79c6; }
-        .function { color: #50fa7b; }
-        .string { color: #f1fa8c; }
-        .comment { color: #6272a4; }
-        .variable { color: #8be9fd; }
-        .number { color: #bd93f9; }
-        .operator { color: #ff5555; }
-        .type { color: #ffb86c; }
-        .bracket { color: #f8f8f2; }
-
-        .typing-cursor {
-            animation: blink 0.7s infinite;
-            color: #fff;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        .particle {
-            position: fixed;
-            width: 2px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            animation: float 15s linear infinite;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateZ(-1000px) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateZ(500px) scale(2);
-                opacity: 0;
-            }
-        }
-
-        .glow-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 0%, rgba(10, 14, 39, 0.8) 100%);
-            pointer-events: none;
-        }
-
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.1) 2px,
-                rgba(0, 0, 0, 0.1) 4px
-            );
-            pointer-events: none;
-            opacity: 0.3;
-        }
-
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
-            pointer-events: none;
-        }
-    </style>
+    @keyframes textBlink {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container" id="container"></div>
-    <div class="glow-overlay"></div>
-    <div class="scanline"></div>
-    <div class="vignette"></div>
+  <div class="main-container">
+    <div class="loader">
+      <svg
+        viewBox="0 0 900 900"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="traceGradient1" x1="250" y1="120" x2="100" y2="200" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
+          </linearGradient>
 
-    <script>
-        const codeSnippets = [
-            `<span class="keyword">const</span> <span class="variable">app</span> <span class="operator">=</span> <span class="function">express</span><span class="bracket">()</span>;`,
-            `<span class="keyword">function</span> <span class="function">initialize</span><span class="bracket">()</span> <span class="bracket">{</span>`,
-            `<span class="keyword">import</span> <span class="bracket">{</span> <span class="variable">useState</span> <span class="bracket">}</span> <span class="keyword">from</span> <span class="string">'react'</span>;`,
-            `<span class="keyword">class</span> <span class="type">DataProcessor</span> <span class="keyword">extends</span> <span class="type">Base</span> <span class="bracket">{</span>`,
-            `<span class="variable">console</span>.<span class="function">log</span><span class="bracket">(</span><span class="string">"Initializing..."</span><span class="bracket">)</span>;`,
-            `<span class="keyword">async</span> <span class="keyword">function</span> <span class="function">fetchData</span><span class="bracket">(</span><span class="variable">url</span><span class="bracket">)</span> <span class="bracket">{</span>`,
-            `<span class="keyword">return</span> <span class="keyword">await</span> <span class="variable">response</span>.<span class="function">json</span><span class="bracket">()</span>;`,
-            `<span class="keyword">if</span> <span class="bracket">(</span><span class="variable">isValid</span> <span class="operator">&&</span> <span class="variable">isActive</span><span class="bracket">)</span> <span class="bracket">{</span>`,
-            `<span class="keyword">const</span> <span class="variable">result</span> <span class="operator">=</span> <span class="variable">data</span>.<span class="function">filter</span><span class="bracket">(</span><span class="variable">x</span> <span class="operator">=></span> <span class="variable">x</span>.<span class="variable">id</span><span class="bracket">)</span>;`,
-            `<span class="comment">// Process the incoming data stream</span>`,
-            `<span class="keyword">export</span> <span class="keyword">default</span> <span class="variable">Component</span>;`,
-            `<span class="keyword">try</span> <span class="bracket">{</span> <span class="function">execute</span><span class="bracket">()</span>; <span class="bracket">}</span> <span class="keyword">catch</span> <span class="bracket">(</span><span class="variable">e</span><span class="bracket">)</span> <span class="bracket">{</span>`,
-            `<span class="keyword">let</span> <span class="variable">counter</span> <span class="operator">=</span> <span class="number">0</span>;`,
-            `<span class="variable">this</span>.<span class="function">setState</span><span class="bracket">({</span> <span class="variable">loading</span>: <span class="keyword">true</span> <span class="bracket">})</span>;`,
-            `<span class="keyword">for</span> <span class="bracket">(</span><span class="keyword">let</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; <span class="variable">i</span> <span class="operator"><</span> <span class="variable">len</span>; <span class="variable">i</span><span class="operator">++</span><span class="bracket">)</span> <span class="bracket">{</span>`,
-            `<span class="keyword">const</span> <span class="bracket">[</span><span class="variable">state</span>, <span class="variable">setState</span><span class="bracket">]</span> <span class="operator">=</span> <span class="function">useState</span><span class="bracket">(</span><span class="keyword">null</span><span class="bracket">)</span>;`,
-            `<span class="variable">document</span>.<span class="function">querySelector</span><span class="bracket">(</span><span class="string">'.app'</span><span class="bracket">)</span>;`,
-            `<span class="keyword">while</span> <span class="bracket">(</span><span class="variable">running</span><span class="bracket">)</span> <span class="bracket">{</span> <span class="function">tick</span><span class="bracket">()</span>; <span class="bracket">}</span>`,
-            `<span class="comment">/* Initialize the main controller */</span>`,
-            `<span class="variable">Promise</span>.<span class="function">all</span><span class="bracket">(</span><span class="variable">requests</span><span class="bracket">)</span>.<span class="function">then</span><span class="bracket">(</span><span class="variable">handle</span><span class="bracket">)</span>;`,
-            `<span class="keyword">interface</span> <span class="type">UserData</span> <span class="bracket">{</span> <span class="variable">id</span>: <span class="type">string</span>; <span class="bracket">}</span>`,
-            `<span class="variable">socket</span>.<span class="function">on</span><span class="bracket">(</span><span class="string">'connect'</span>, <span class="function">handler</span><span class="bracket">)</span>;`,
-            `<span class="keyword">def</span> <span class="function">process_data</span><span class="bracket">(</span><span class="variable">self</span>, <span class="variable">input</span><span class="bracket">)</span>:`,
-            `<span class="variable">model</span> <span class="operator">=</span> <span class="function">Sequential</span><span class="bracket">([</span><span class="function">Dense</span><span class="bracket">(</span><span class="number">128</span><span class="bracket">)])</span>`,
-            `<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="variable">users</span> <span class="keyword">WHERE</span> <span class="variable">active</span>;`,
-            `<span class="variable">std</span>::<span class="variable">cout</span> <span class="operator"><<</span> <span class="variable">result</span> <span class="operator"><<</span> <span class="variable">std</span>::<span class="variable">endl</span>;`,
-            `<span class="keyword">#include</span> <span class="string"><iostream></span>`,
-            `<span class="keyword">using</span> <span class="keyword">namespace</span> <span class="variable">std</span>;`,
-            `<span class="keyword">public</span> <span class="keyword">static</span> <span class="type">void</span> <span class="function">main</span><span class="bracket">(</span><span class="type">String</span><span class="bracket">[]</span> <span class="variable">args</span><span class="bracket">)</span>`,
-            `<span class="variable">System</span>.<span class="variable">out</span>.<span class="function">println</span><span class="bracket">(</span><span class="string">"Hello World"</span><span class="bracket">)</span>;`,
-        ];
+          <linearGradient id="traceGradient2" x1="650" y1="120" x2="800" y2="300" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
+          </linearGradient>
 
-        const container = document.getElementById('container');
-        let layerIndex = 0;
+          <linearGradient id="traceGradient3" x1="250" y1="380" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
+          </linearGradient>
 
-        function getRandomPosition() {
-            const offsetX = (Math.random() - 0.5) * 60;
-            const offsetY = (Math.random() - 0.5) * 60;
-            return { x: offsetX, y: offsetY };
-        }
+          <linearGradient id="traceGradient4" x1="650" y1="120" x2="500" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00ccff" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#00ccff" stop-opacity="0.5"></stop>
+          </linearGradient>
+        </defs>
 
-        function createCodeLayer() {
-            const layer = document.createElement('div');
-            layer.className = 'code-layer';
-            
-            const snippet = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
-            const pos = getRandomPosition();
-            
-            layer.innerHTML = snippet + `<span class="typing-cursor">|</span>`;
-            layer.style.fontSize = `${14 + Math.random() * 10}px`;
-            layer.style.left = `calc(50% + ${pos.x}vw)`;
-            layer.style.top = `calc(50% + ${pos.y}vh)`;
-            layer.style.animationDelay = '0s';
-            layer.style.animationDuration = `${6 + Math.random() * 4}s`;
-            
-            container.appendChild(layer);
-            
-            setTimeout(() => {
-                layer.remove();
-            }, 12000);
-        }
+        <g id="grid">
+          <g>
+            <line x1="0" y1="0" x2="0" y2="100%" class="grid-line"></line>
+            <line x1="100" y1="0" x2="100" y2="100%" class="grid-line"></line>
+            <line x1="200" y1="0" x2="200" y2="100%" class="grid-line"></line>
+            <line x1="300" y1="0" x2="300" y2="100%" class="grid-line"></line>
+            <line x1="400" y1="0" x2="400" y2="100%" class="grid-line"></line>
+            <line x1="500" y1="0" x2="500" y2="100%" class="grid-line"></line>
+            <line x1="600" y1="0" x2="600" y2="100%" class="grid-line"></line>
+            <line x1="700" y1="0" x2="700" y2="100%" class="grid-line"></line>
+            <line x1="800" y1="0" x2="800" y2="100%" class="grid-line"></line>
+            <line x1="900" y1="0" x2="900" y2="100%" class="grid-line"></line>
+            <line x1="1000" y1="0" x2="1000" y2="100%" class="grid-line"></line>
+            <line x1="1100" y1="0" x2="1100" y2="100%" class="grid-line"></line>
+            <line x1="1200" y1="0" x2="1200" y2="100%" class="grid-line"></line>
+            <line x1="1300" y1="0" x2="1300" y2="100%" class="grid-line"></line>
+            <line x1="1400" y1="0" x2="1400" y2="100%" class="grid-line"></line>
+            <line x1="1500" y1="0" x2="1500" y2="100%" class="grid-line"></line>
+            <line x1="1600" y1="0" x2="1600" y2="100%" class="grid-line"></line>
+          </g>
 
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = `${Math.random() * 100}vw`;
-            particle.style.top = `${Math.random() * 100}vh`;
-            particle.style.animationDelay = `${Math.random() * 5}s`;
-            particle.style.animationDuration = `${10 + Math.random() * 10}s`;
-            
-            const colors = ['#ff79c6', '#50fa7b', '#f1fa8c', '#8be9fd', '#bd93f9', '#ffb86c'];
-            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-            particle.style.boxShadow = `0 0 ${5 + Math.random() * 10}px ${particle.style.background}`;
-            
-            document.body.appendChild(particle);
-            
-            setTimeout(() => {
-                particle.remove();
-            }, 20000);
-        }
+          <g>
+            <line x1="0" y1="100" x2="100%" y2="100" class="grid-line"></line>
+            <line x1="0" y1="200" x2="100%" y2="200" class="grid-line"></line>
+            <line x1="0" y1="300" x2="100%" y2="300" class="grid-line"></line>
+            <line x1="0" y1="400" x2="100%" y2="400" class="grid-line"></line>
+            <line x1="0" y1="500" x2="100%" y2="500" class="grid-line"></line>
+            <line x1="0" y1="600" x2="100%" y2="600" class="grid-line"></line>
+            <line x1="0" y1="700" x2="100%" y2="700" class="grid-line"></line>
+            <line x1="0" y1="800" x2="100%" y2="800" class="grid-line"></line>
+          </g>
+        </g>
 
-        // Initial batch
-        for (let i = 0; i < 8; i++) {
-            setTimeout(() => createCodeLayer(), i * 400);
-        }
+        <g id="browser" transform="translate(0, 200)">
+          <rect x="250" y="120" width="400" height="260" rx="8" ry="8" class="browser-frame"></rect>
+          <rect x="250" y="120" width="400" height="30" rx="8" ry="8" class="browser-top"></rect>
 
-        for (let i = 0; i < 30; i++) {
-            setTimeout(() => createParticle(), i * 100);
-        }
+          <text x="294" y="141" text-anchor="middle" class="loading-text">Loading...</text>
 
-        // Continuous generation
-        setInterval(createCodeLayer, 600);
-        setInterval(createParticle, 300);
-    </script>
+          <rect x="270" y="160" width="360" height="20" class="skeleton"></rect>
+          <rect x="270" y="190" width="200" height="15" class="skeleton"></rect>
+          <rect x="270" y="215" width="300" height="15" class="skeleton"></rect>
+          <rect x="270" y="240" width="360" height="90" class="skeleton"></rect>
+          <rect x="270" y="340" width="180" height="20" class="skeleton"></rect>
+        </g>
+
+        <g id="traces" transform="translate(0, 200)">
+          <path d="M100 300 H250 V128 Q250 120 258 120" class="trace-flow"></path>
+          <path d="M800 200 H650 V372 Q650 380 642 380" class="trace-flow"></path>
+          <path d="M400 520 V380 H258 Q250 380 250 372" class="trace-flow"></path>
+          <path d="M500 50 V120 H642 Q650 120 650 128" class="trace-flow"></path>
+        </g>
+      </svg>
+    </div>
+  </div>
 </body>
 </html>
