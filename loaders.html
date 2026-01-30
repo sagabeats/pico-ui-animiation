@@ -4,21 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loader</title>
+
+  <!-- ADDED (needed): reduce UA / iframe color-scheme side effects -->
+  <meta name="color-scheme" content="light dark" />
+
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
+    :root {
+      /* ADDED (needed): prevent UA forcing light canvas in embedded contexts */
+      color-scheme: normal;
+    }
     
     html, body {
       height: 100%;
       width: 100%;
-      background: transparent; /* CHANGED: was #0a0a0a */
+
+      /* CHANGED (needed): make transparency win over any default painting */
+      background-color: transparent !important;
+      background: transparent !important;
+      margin: 0;
     }
 
     body {
-      background: transparent; /* ADDED: force transparent in embeds */
+      background-color: transparent !important;
+      background: transparent !important;
     }
     
     .main-container {
